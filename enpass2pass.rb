@@ -77,18 +77,32 @@ class Entry
   def filtered_attrs
     attrs.reject do |k, _|
       kd = k.downcase
-      kd.empty? || kd.start_with?("html") || kd == "remember" ||
+      kd.empty? || kd.start_with?("html") || kd.include?("remember") ||
         kd == "persistent" || kd.include?("tos") || kd.include?("captcha") ||
-        kd == "submit" || kd == "scope"
+        kd == "submit" || kd == "scope" || kd.include?("confirm")
     end
   end
 
   def password
-    extract(%w[password pass pass0 pass1 login<>password])
+    p = extract(%w[
+      password pass .pw1 regPassword logonPassword pwd
+    ])
+    if p
+      p
+    else
+      e = attrs.detect { |k, _|
+        kd = k.downcase
+        kd.include?("pass") && "o" != kd[0] && !kd.include?("old")
+      }
+      e && e[1]
+    end
   end
 
   def login
-    extract(%w[login username loginuser user userid email emailaddress])
+    extract(%w[
+      login username loginuser user userid uid email emailaddress regEmail
+      user[email]
+    ])
   end
 
   def url
@@ -107,7 +121,7 @@ class Entry
 
   def misc_attrs
     attrs.reject do |_, v|
-      [password, login, url, otp].include?(v)
+      v.nil? || v.empty? || [password, login, url, otp].include?(v)
     end
   end
 end
