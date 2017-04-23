@@ -7,6 +7,8 @@
 #
 # Reads Enpass CSV exports. Supports OTP entries & arbitrary metadata, emits
 # multiline format entries. Puts entries without passwords under a `notes/` dir.
+#
+# https://github.com/wfleming/enpass2pass
 
 ########################## Requires/Types ##########################
 
